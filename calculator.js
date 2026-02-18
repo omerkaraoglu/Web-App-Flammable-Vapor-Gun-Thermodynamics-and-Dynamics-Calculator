@@ -62,7 +62,7 @@ function calcEthanol(env, chamberVolumeL, barrelDiameterMm, barrelLengthMm, proj
   return runBarrelAndMotion(
     env, chamberVolumeL, barrelDiameterMm, barrelLengthMm, projectileMassG,
     combustion_energy,
-    { fuelMassG: fuel_mass_kg * 1000, fuelVolumeMl: fuel_volume_L * 1000, fuelLabel: 'Ethanol (mL)' }
+    { fuelMassG: fuel_mass_kg * 1000, fuelVolumeMl: fuel_volume_L * 1000, fuelLabel: 'Ethanol' }
   );
 }
 
@@ -92,7 +92,7 @@ function calcDiethylEther(env, chamberVolumeL, barrelDiameterMm, barrelLengthMm,
   return runBarrelAndMotion(
     env, chamberVolumeL, barrelDiameterMm, barrelLengthMm, projectileMassG,
     combustion_energy,
-    { fuelMassG: fuel_mass_kg * 1000, fuelVolumeMl: fuel_volume_L * 1000, fuelLabel: 'Diethyl ether (mL)' }
+    { fuelMassG: fuel_mass_kg * 1000, fuelVolumeMl: fuel_volume_L * 1000, fuelLabel: 'Diethyl ether' }
   );
 }
 

@@ -551,6 +551,30 @@ body {
   margin: 0.5rem 0 0 0;
 }
 
+.bullet-section.outputs-invalid {
+  background: rgba(127, 29, 29, 0.5);
+  border-color: #dc2626;
+  box-shadow: 0 0 0 1px #dc2626;
+}
+
+.bullet-section.outputs-invalid .section-label,
+.bullet-section.outputs-invalid .output-label,
+.bullet-section.outputs-invalid .output-value,
+.bullet-section.outputs-invalid .output-sub {
+  color: #fecaca;
+}
+
+.plot-error-box {
+  font-size: 0.8rem;
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.9);
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
 .plot-cursor-value {
   display: none;
   position: absolute;

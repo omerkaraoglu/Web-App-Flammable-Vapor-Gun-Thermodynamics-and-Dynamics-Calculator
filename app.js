@@ -15,6 +15,9 @@
   const out_time = document.getElementById('out_time');
   const out_fuel = document.getElementById('out_fuel');
   const out_fuel_label = document.getElementById('out_fuel_label');
+  const outputsSection = document.getElementById('outputsSection');
+
+  const EFFICIENCY_ERROR_MSG = 'Efficiency exceeds 100%. Results are invalid.';
 
   function getInputs() {
     return {
@@ -49,6 +52,7 @@
       out_efficiency.textContent = '— %';
       out_time.textContent = '— ms';
       out_fuel.textContent = '—';
+      if (outputsSection) outputsSection.classList.remove('outputs-invalid');
       return;
     }
 
@@ -58,12 +62,23 @@
     out_velocity.textContent = round2(result.muzzleVelocity) + ' m/s';
     out_mach.textContent = 'Mach ' + round2(result.mach);
     out_energy.textContent = round2(result.kineticEnergy_J) + ' J';
-    out_pressure.textContent = round3(result.chamberPressure_MPa) + ' MPa';
+    out_pressure.textContent = round2(result.chamberPressure_MPa) + ' MPa';
     out_efficiency.textContent = round2(result.rifleEfficiency_percent) + ' %';
     out_time.textContent = round2(result.timeInBarrel_ms) + ' ms';
 
+    if (outputsSection) {
+      if (result.rifleEfficiency_percent > 100) outputsSection.classList.add('outputs-invalid');
+      else outputsSection.classList.remove('outputs-invalid');
+    }
+
     if (result.fuelVolumeMl != null) {
-      out_fuel.textContent = round2(result.fuelVolumeMl) + ' mL';
+      const ml = result.fuelVolumeMl;
+      if (ml >= 1) {
+        out_fuel.textContent = round3(ml) + ' mL';
+      } else {
+        const uL = ml * 1000;
+        out_fuel.textContent = (Math.round(uL * 10) / 10).toFixed(1) + ' \u00B5L';
+      }
       out_fuel_label.textContent = result.fuelLabel || 'Fuel amount';
     } else {
       out_fuel.textContent = result.fuelLabel || 'HHO (2:1)';
@@ -94,6 +109,7 @@
   const plotCanvas = document.getElementById('plotCanvas');
   const plotHint = document.getElementById('plotHint');
   const plotCursorValue = document.getElementById('plotCursorValue');
+  const plotErrorBox = document.getElementById('plotErrorBox');
 
   let plotState = null;
 
@@ -104,12 +120,14 @@
     let xMax = parseFloat(plotXMax.value);
     if (isNaN(xMin) || isNaN(xMax) || xMin >= xMax) {
       plotHint.textContent = 'Enter a valid X range (Min < Max).';
+      if (plotErrorBox) plotErrorBox.hidden = true;
       plotState = null;
       return;
     }
     const base = getInputs();
     const N = 100;
     const points = [];
+    const chamberPressures = [];
     for (let i = 0; i < N; i++) {
       const x = xMin + (xMax - xMin) * i / (N - 1);
       const params = { ...base };
@@ -126,25 +144,67 @@
       if (!r) continue;
       let y = r[yKey];
       if (y == null || (typeof y === 'number' && isNaN(y))) y = 0;
-      if (yKey === 'chamberPressure_MPa') y = round2(y);
-      points.push({ x: x, y: y });
+      const efficiency = r.rifleEfficiency_percent;
+      const cp = r.chamberPressure_MPa;
+      chamberPressures.push(cp);
+      points.push({ x: x, y: y, efficiency: efficiency, chamberPressure: cp });
     }
     if (points.length === 0) {
       plotHint.textContent = 'Calculation error; check inputs.';
+      if (plotErrorBox) plotErrorBox.hidden = true;
       plotState = null;
       return;
     }
+    var cutIndex = -1;
+    for (var i = 0; i < points.length; i++) {
+      if (points[i].efficiency > 100) {
+        cutIndex = i;
+        break;
+      }
+    }
+    var validPoints = cutIndex < 0 ? points : points.slice(0, cutIndex);
+    var cutPoint = cutIndex >= 0 ? points[cutIndex] : null;
+
+    // Decide chamber-pressure rounding based on total variation (10 kPa = 0.01 MPa)
+    if (yKey === 'chamberPressure_MPa' && validPoints.length > 0) {
+      const cps = validPoints.map(function (p) { return p.chamberPressure; });
+      const cpMin = Math.min.apply(null, cps);
+      const cpMax = Math.max.apply(null, cps);
+      const cpDelta = cpMax - cpMin;
+      if (cpDelta <= 0.01) {
+        validPoints = validPoints.map(function (p) {
+          return { x: p.x, y: round2(p.y), efficiency: p.efficiency, chamberPressure: p.chamberPressure };
+        });
+      }
+    }
+    if (plotErrorBox) {
+      if (cutPoint) {
+        plotErrorBox.textContent = EFFICIENCY_ERROR_MSG + ' Plot cut at x = ' + round2(cutPoint.x) + '.';
+        plotErrorBox.hidden = false;
+      } else {
+        plotErrorBox.hidden = true;
+      }
+    }
     plotHint.textContent = '';
-    const ys = points.map(function (p) { return p.y; });
-    const yMin = Math.min.apply(null, ys);
-    const yMax = Math.max.apply(null, ys);
+    const ys = validPoints.map(function (p) { return p.y; });
+    var yMin, yMax;
+    if (ys.length > 0) {
+      yMin = Math.min.apply(null, ys);
+      yMax = Math.max.apply(null, ys);
+    } else if (cutPoint) {
+      yMin = cutPoint.y;
+      yMax = cutPoint.y;
+    } else {
+      yMin = 0;
+      yMax = 1;
+    }
     const yRange = yMax - yMin || 1;
     const yLo = yMin - yRange * 0.05;
     const yHi = yMax + yRange * 0.05;
     const pad = { left: 52, right: 24, top: 20, bottom: 36 };
     const plotW = plotCanvas.width - pad.left - pad.right;
     const plotH = plotCanvas.height - pad.top - pad.bottom;
-    plotState = { points, xKey, yKey, xMin, xMax, yLo, yHi, pad, plotW, plotH };
+    plotState = { points: validPoints, cutPoint: cutPoint, xKey, yKey, xMin, xMax, yLo, yHi, pad, plotW, plotH };
     drawPlot(null);
   }
 
@@ -163,7 +223,7 @@
 
   function drawPlot(cursor) {
     if (!plotState) return;
-    const { points, xKey, yKey, xMin, xMax, yLo, yHi, pad, plotW, plotH } = plotState;
+    const { points, cutPoint, xKey, yKey, xMin, xMax, yLo, yHi, pad, plotW, plotH } = plotState;
     const w = plotCanvas.width;
     const h = plotCanvas.height;
     const ctx = plotCanvas.getContext('2d');
@@ -207,22 +267,37 @@
       ctx.fillText(String(round2(yVal)), pad.left - 8, py + 4);
     }
 
-    const plotColor = yKey === 'chamberPressure_MPa' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(0, 212, 170, 0.95)';
-    ctx.strokeStyle = plotColor;
+    ctx.strokeStyle = 'rgba(0, 212, 170, 0.95)';
     ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(toX(points[0].x), toY(points[0].y));
-    for (let i = 1; i < points.length; i++) {
-      ctx.lineTo(toX(points[i].x), toY(points[i].y));
-    }
-    ctx.stroke();
-
-    ctx.fillStyle = yKey === 'chamberPressure_MPa' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 212, 170, 0.5)';
-    points.forEach(function (p) {
+    if (points.length > 0) {
       ctx.beginPath();
-      ctx.arc(toX(p.x), toY(p.y), 2, 0, Math.PI * 2);
-      ctx.fill();
-    });
+      ctx.moveTo(toX(points[0].x), toY(points[0].y));
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(toX(points[i].x), toY(points[i].y));
+      }
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(0, 212, 170, 0.5)';
+      points.forEach(function (p) {
+        ctx.beginPath();
+        ctx.arc(toX(p.x), toY(p.y), 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    }
+
+    if (cutPoint) {
+      const cx = toX(cutPoint.x);
+      const cy = toY(cutPoint.y);
+      const size = 12;
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx - size, cy - size);
+      ctx.lineTo(cx + size, cy + size);
+      ctx.moveTo(cx - size, cy + size);
+      ctx.lineTo(cx + size, cy - size);
+      ctx.stroke();
+    }
 
     if (cursor != null && typeof cursor.x === 'number') {
       const yVal = getYAtX(points, cursor.x);
@@ -309,6 +384,7 @@
   const normCanvas = document.getElementById('normCanvas');
   const normHint = document.getElementById('normHint');
   const normCursorInputs = document.getElementById('normCursorInputs');
+  const normErrorBox = document.getElementById('normErrorBox');
 
   function isNormVarying(inputKey) {
     const cb = document.getElementById('norm_var_' + inputKey);
@@ -362,6 +438,7 @@
     const invalidKey = validateNormRanges();
     if (invalidKey) {
       normHint.textContent = 'For each checked "Vary" input, set Min < Max.';
+      if (normErrorBox) normErrorBox.hidden = true;
       normState = null;
       if (normCanvas) normCanvas.getContext('2d').clearRect(0, 0, normCanvas.width, normCanvas.height);
       return;
@@ -388,28 +465,86 @@
       NORM_OUTPUTS.forEach(function (o) {
         let v = r && r[o.key];
         if (v == null || (typeof v === 'number' && isNaN(v))) v = 0;
-        if (o.key === 'chamberPressure_MPa') v = round2(v);
         seriesByKey[o.key].push(v);
       });
     }
 
+    // For chamber pressure, optionally smooth numeric noise:
+    // if total change across the sweep is <= 10 kPa (0.01 MPa), round it.
+    const cpArrRaw = seriesByKey['chamberPressure_MPa'];
+    if (cpArrRaw && cpArrRaw.length > 0) {
+      const cpMin = Math.min.apply(null, cpArrRaw);
+      const cpMax = Math.max.apply(null, cpArrRaw);
+      const cpDelta = cpMax - cpMin;
+      if (cpDelta <= 0.01) {
+        seriesByKey['chamberPressure_MPa'] = cpArrRaw.map(function (v) { return round2(v); });
+      }
+    }
+
+    var cutIndex = -1;
+    const effArr = seriesByKey['rifleEfficiency_percent'];
+    if (effArr) {
+      for (var ci = 0; ci < effArr.length; ci++) {
+        if (effArr[ci] > 100) {
+          cutIndex = ci;
+          break;
+        }
+      }
+    }
+
+    var tValuesCut = tValues;
+    var seriesByKeyCut = seriesByKey;
+    var cutT = null;
+    var cutNormY = null;
+
+    if (cutIndex >= 0) {
+      tValuesCut = tValues.slice(0, cutIndex);
+      seriesByKeyCut = {};
+      NORM_OUTPUTS.forEach(function (o) {
+        seriesByKeyCut[o.key] = seriesByKey[o.key].slice(0, cutIndex);
+      });
+      cutT = tValues[cutIndex];
+      if (normErrorBox) {
+        normErrorBox.textContent = EFFICIENCY_ERROR_MSG + ' All plots cut at first invalid point.';
+        normErrorBox.hidden = false;
+      }
+    } else {
+      if (normErrorBox) normErrorBox.hidden = true;
+    }
+
     const normalized = {};
     NORM_OUTPUTS.forEach(function (o) {
-      const arr = seriesByKey[o.key];
-      const min = Math.min.apply(null, arr);
-      const max = Math.max.apply(null, arr);
+      const arr = seriesByKeyCut[o.key];
+      const min = Math.min.apply(null, arr.length ? arr : [0]);
+      const max = Math.max.apply(null, arr.length ? arr : [0]);
       const range = max - min || 1;
       normalized[o.key] = arr.map(function (v) { return (v - min) / range; });
     });
+
+    if (cutT != null && cutIndex >= 0) {
+      cutNormY = {};
+      NORM_OUTPUTS.forEach(function (o) {
+        const arr = seriesByKeyCut[o.key];
+        const fullArr = seriesByKey[o.key];
+        const useForRange = arr.length > 0 ? arr : fullArr;
+        const min = Math.min.apply(null, useForRange.length ? useForRange : [0]);
+        const max = Math.max.apply(null, useForRange.length ? useForRange : [0]);
+        const range = max - min || 1;
+        const rawAtCut = fullArr[cutIndex];
+        cutNormY[o.key] = range ? (rawAtCut - min) / range : 0;
+      });
+    }
 
     normHint.textContent = '';
     const pad = { left: 52, right: 140, top: 28, bottom: 36 };
     const plotW = normCanvas.width - pad.left - pad.right;
     const plotH = normCanvas.height - pad.top - pad.bottom;
     normState = {
-      tValues,
+      tValues: tValuesCut,
       normalized,
-      rawSeries: seriesByKey,
+      rawSeries: seriesByKeyCut,
+      cutT,
+      cutNormY,
       pad,
       plotW,
       plotH
@@ -434,7 +569,7 @@
 
   function drawNormPlot(cursor) {
     if (!normState || !normCanvas) return;
-    const { tValues, normalized, rawSeries, pad, plotW, plotH } = normState;
+    const { tValues, normalized, rawSeries, cutT, cutNormY, pad, plotW, plotH } = normState;
     const w = normCanvas.width;
     const h = normCanvas.height;
     const ctx = normCanvas.getContext('2d');
@@ -478,6 +613,24 @@
       }
       ctx.stroke();
     });
+
+    if (cutT != null && cutNormY) {
+      const crossSize = 10;
+      ctx.strokeStyle = '#dc2626';
+      ctx.lineWidth = 2;
+      const cx = pad.left + cutT * plotW;
+      NORM_OUTPUTS.forEach(function (o) {
+        const ny = cutNormY[o.key];
+        if (ny == null) return;
+        const cy = toY(ny);
+        ctx.beginPath();
+        ctx.moveTo(cx - crossSize, cy - crossSize);
+        ctx.lineTo(cx + crossSize, cy + crossSize);
+        ctx.moveTo(cx - crossSize, cy + crossSize);
+        ctx.lineTo(cx + crossSize, cy - crossSize);
+        ctx.stroke();
+      });
+    }
 
     const legendLeft = pad.left + plotW + 12;
     let legendY = pad.top + 8;
