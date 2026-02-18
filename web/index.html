@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flammable Vapor Gun Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="page-header">
+      <div class="author-info">
+        <img src="https://avatars.githubusercontent.com/u/89864756?v=4" alt="Ömer Karaoğlu" class="author-avatar" />
+        <span class="author-name">Ömer Karaoğlu</span>
+      </div>
+      <div class="header-links">
+        <a href="https://github.com/omerkaraoglu" target="_blank" rel="noopener noreferrer" class="header-btn header-btn-github" aria-label="GitHub">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </a>
+        <a href="https://www.linkedin.com/in/omer-karaoglu" target="_blank" rel="noopener noreferrer" class="header-btn header-btn-linkedin" aria-label="LinkedIn">
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+      </div>
+    </header>
+
+    <header class="header">
+      <h1>Flammable Vapor Gun Calculator</h1>
+      <p class="subtitle">Thermodynamics &amp; Dynamics</p>
+      <div class="fuel-select-wrap">
+        <label for="fuel">Fuel</label>
+        <select id="fuel" class="fuel-select">
+          <option value="ethanol">Ethanol</option>
+          <option value="diethyl_ether">Diethyl Ether</option>
+          <option value="HHO">HHO</option>
+        </select>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="cannon-section" aria-label="Gun parameters">
+        <p class="section-label">Inputs (gun)</p>
+        <div class="input-row input-row-env">
+          <div class="input-group">
+            <label for="temperature">Temperature (°C)</label>
+            <input type="number" id="temperature" value="25" step="0.1" />
+          </div>
+          <div class="input-group">
+            <label for="altitude">Altitude (m)</label>
+            <input type="number" id="altitude" value="0" step="1" />
+          </div>
+        </div>
+        <div class="input-row input-row-chamber">
+          <div class="input-group">
+            <label for="chamber_volume">Chamber volume (L)</label>
+            <input type="number" id="chamber_volume" value="2" step="0.01" min="0.01" />
+          </div>
+        </div>
+        <div class="cannon-barrel-wrap">
+          <div class="cannon-silhouette">
+            <img src="assets/rifle.png" alt="Rifle / gun" class="cannon-img" onerror="this.outerHTML='<svg class=\'cannon-img\' viewBox=\'0 0 200 56\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\' aria-label=\'Rifle / gun\'><path fill=\'currentColor\' d=\'M12 8c0-2.2 1.8-4 4-4h36c2.2 0 4 1.8 4 4v40c0 2.2-1.8 4-4 4H16c-2.2 0-4-1.8-4-4V8z\'/><path fill=\'currentColor\' d=\'M52 14c0-1.1.9-2 2-2h24c1.1 0 2 .9 2 2v28c0 1.1-.9 2-2 2H54c-1.1 0-2-.9-2-2V14z\'/><path fill=\'currentColor\' d=\'M78 20h114v16H78z\'/></svg>'">
+          </div>
+          <div class="cannon-barrel-bottom">
+            <div class="input-row input-row-projectile">
+              <div class="input-group">
+                <label for="projectile_mass">Projectile mass (g)</label>
+                <input type="number" id="projectile_mass" value="50" step="0.1" min="0.1" />
+              </div>
+            </div>
+            <div class="barrel-inputs-right">
+              <div class="input-row input-row-barrel">
+                <div class="input-group">
+                  <label for="barrel_diameter">Barrel diameter (mm)</label>
+                  <input type="number" id="barrel_diameter" value="40" step="0.1" min="1" />
+                </div>
+                <div class="input-group">
+                  <label for="barrel_length">Barrel length (mm)</label>
+                  <input type="number" id="barrel_length" value="1000" step="1" min="1" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="cannon-note">The LEL and UEL limits for the Ethanol and Diethyl Ether are acquired from the test data of a cylindrical combustion chamber which has <span class="note-highlight">50 mm inner diameter</span>.</p>
+      </section>
+
+      <section class="bullet-section" aria-label="Results">
+        <p class="section-label">Outputs (projectile)</p>
+        <div class="pellet-layout">
+          <div class="pellet-silhouette">
+            <img src="assets/projectile.png" alt="Projectile" class="pellet-img" onerror="this.outerHTML='<svg class=\'pellet-img\' viewBox=\'0 0 80 120\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\' aria-label=\'Projectile\'><path fill=\'currentColor\' d=\'M20 28A20 20 0 0 1 60 28Q58 52 54 72L52 120H28L26 72Q22 52 20 28Z\'/></svg>'">
+          </div>
+          <div class="outputs-panel">
+            <div class="output-group">
+              <span class="output-label">Muzzle velocity</span>
+              <span class="output-value" id="out_velocity">— m/s</span>
+              <span class="output-sub" id="out_mach">— Mach</span>
+            </div>
+            <div class="output-group">
+              <span class="output-label">Kinetic energy</span>
+              <span class="output-value" id="out_energy">— J</span>
+            </div>
+            <div class="output-group">
+              <span class="output-label">Chamber pressure</span>
+              <span class="output-value" id="out_pressure">— MPa</span>
+            </div>
+            <div class="output-group">
+              <span class="output-label">Efficiency</span>
+              <span class="output-value" id="out_efficiency">— %</span>
+            </div>
+            <div class="output-group">
+              <span class="output-label">Time in barrel</span>
+              <span class="output-value" id="out_time">— ms</span>
+            </div>
+            <div class="output-group">
+              <span class="output-label" id="out_fuel_label">Fuel amount</span>
+              <span class="output-value" id="out_fuel">—</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <section class="graph-section" aria-label="Graph">
+      <p class="section-label">Graph</p>
+      <div class="graph-controls">
+        <div class="graph-row">
+          <label for="plot_x">X axis (input)</label>
+          <select id="plot_x" class="graph-select">
+            <option value="temperature">Temperature (°C)</option>
+            <option value="altitude">Altitude (m)</option>
+            <option value="chamber_volume">Chamber volume (L)</option>
+            <option value="barrel_diameter">Barrel diameter (mm)</option>
+            <option value="barrel_length" selected>Barrel length (mm)</option>
+            <option value="projectile_mass">Projectile mass (g)</option>
+          </select>
+        </div>
+        <div class="graph-row">
+          <label for="plot_y">Y axis (output)</label>
+          <select id="plot_y" class="graph-select">
+            <option value="muzzleVelocity" selected>Muzzle velocity (m/s)</option>
+            <option value="kineticEnergy_J">Kinetic energy (J)</option>
+            <option value="chamberPressure_MPa">Chamber pressure (MPa)</option>
+            <option value="rifleEfficiency_percent">Efficiency (%)</option>
+            <option value="timeInBarrel_ms">Time in barrel (ms)</option>
+            <option value="fuelVolumeMl">Fuel volume (mL)</option>
+          </select>
+        </div>
+        <div class="graph-row graph-range">
+          <label for="plot_x_min">X range</label>
+          <input type="number" id="plot_x_min" class="graph-input" placeholder="Min" value="10" step="any" />
+          <span class="graph-range-sep">–</span>
+          <input type="number" id="plot_x_max" class="graph-input" placeholder="Max" value="1000" step="any" />
+        </div>
+      </div>
+      <div class="graph-canvas-wrap">
+        <canvas id="plotCanvas" class="plot-canvas" width="800" height="400"></canvas>
+        <div class="plot-cursor-value" id="plotCursorValue"></div>
+        <p class="graph-hint" id="plotHint"></p>
+      </div>
+    </section>
+
+    <section class="graph-section graph-section-normalized" aria-label="Normalized relationships">
+      <p class="section-label">Normalized relationships (all outputs)</p>
+      <p class="graph-hint graph-hint-normalized">Check “Vary” to sweep an input over its range; unchecked inputs use the constant value from the gun inputs above.</p>
+      <div class="graph-controls graph-controls-normalized">
+        <div class="norm-inputs-grid">
+          <div class="norm-input-row">
+            <label class="norm-cb"><input type="checkbox" id="norm_var_temperature" class="norm-var-cb" data-input="temperature" /> Vary</label>
+            <span class="norm-input-name">Temperature (°C)</span>
+            <div class="graph-row graph-range">
+              <input type="number" id="norm_temperature_min" class="graph-input norm-range" placeholder="Min" value="10" step="any" />
+              <span class="graph-range-sep">–</span>
+              <input type="number" id="norm_temperature_max" class="graph-input norm-range" placeholder="Max" value="40" step="any" />
+            </div>
+          </div>
+          <div class="norm-input-row">
+            <label class="norm-cb"><input type="checkbox" id="norm_var_altitude" class="norm-var-cb" data-input="altitude" /> Vary</label>
+            <span class="norm-input-name">Altitude (m)</span>
+            <div class="graph-row graph-range">
+              <input type="number" id="norm_altitude_min" class="graph-input norm-range" placeholder="Min" value="0" step="any" />
+              <span class="graph-range-sep">–</span>
+              <input type="number" id="norm_altitude_max" class="graph-input norm-range" placeholder="Max" value="3000" step="any" />
+            </div>
+          </div>
+          <div class="norm-input-row">
+            <label class="norm-cb"><input type="checkbox" id="norm_var_chamber_volume" class="norm-var-cb" data-input="chamber_volume" /> Vary</label>
+            <span class="norm-input-name">Chamber vol. (L)</span>
+            <div class="graph-row graph-range">
+              <input type="number" id="norm_chamber_volume_min" class="graph-input norm-range" placeholder="Min" value="0.5" step="any" />
+              <span class="graph-range-sep">–</span>
+              <input type="number" id="norm_chamber_volume_max" class="graph-input norm-range" placeholder="Max" value="5" step="any" />
+            </div>
+          </div>
+          <div class="norm-input-row">
+            <label class="norm-cb"><input type="checkbox" id="norm_var_barrel_diameter" class="norm-var-cb" data-input="barrel_diameter" /> Vary</label>
+            <span class="norm-input-name">Barrel diam. (mm)</span>
+            <div class="graph-row graph-range">
+              <input type="number" id="norm_barrel_diameter_min" class="graph-input norm-range" placeholder="Min" value="20" step="any" />
+              <span class="graph-range-sep">–</span>
+              <input type="number" id="norm_barrel_diameter_max" class="graph-input norm-range" placeholder="Max" value="80" step="any" />
+            </div>
+          </div>
+          <div class="norm-input-row">
+            <label class="norm-cb"><input type="checkbox" id="norm_var_barrel_length" class="norm-var-cb" data-input="barrel_length" /> Vary</label>
+            <span class="norm-input-name">Barrel length (mm)</span>
+            <div class="graph-row graph-range">
+              <input type="number" id="norm_barrel_length_min" class="graph-input norm-range" placeholder="Min" value="200" step="any" />
+              <span class="graph-range-sep">–</span>
+              <input type="number" id="norm_barrel_length_max" class="graph-input norm-range" placeholder="Max" value="2000" step="any" />
+            </div>
+          </div>
+          <div class="norm-input-row">
+            <label class="norm-cb"><input type="checkbox" id="norm_var_projectile_mass" class="norm-var-cb" data-input="projectile_mass" checked /> Vary</label>
+            <span class="norm-input-name">Projectile mass (g)</span>
+            <div class="graph-row graph-range">
+              <input type="number" id="norm_projectile_mass_min" class="graph-input norm-range" placeholder="Min" value="10" step="any" />
+              <span class="graph-range-sep">–</span>
+              <input type="number" id="norm_projectile_mass_max" class="graph-input norm-range" placeholder="Max" value="500" step="any" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="graph-canvas-wrap">
+        <canvas id="normCanvas" class="plot-canvas" width="800" height="420"></canvas>
+        <div class="norm-cursor-wrap">
+          <div class="plot-cursor-value norm-cursor-inputs" id="normCursorInputs"></div>
+          <div class="plot-cursor-value" id="normCursorValue"></div>
+        </div>
+        <p class="graph-hint" id="normHint"></p>
+      </div>
+    </section>
+
+    <section class="math-panel" aria-label="Equations">
+      <h2 class="math-panel-title">Models and equations</h2>
+      <div class="math-display-block">
+        <p class="math-label">Barometric</p>
+        <div class="katex-block" data-latex="p = p_0 \exp\left(-\frac{gM(h-h_0)}{RT}\right) \quad [\text{Pa}]"></div>
+        <p class="math-label">Van der Waals</p>
+        <div class="katex-block" data-latex="\left(P + \frac{an^2}{V^2}\right)\left(\frac{V}{n} - b\right) = RT \quad n \; [\text{mol}]"></div>
+        <p class="math-label">DIPPR 105</p>
+        <div class="katex-block" data-latex="\rho = \frac{A}{B^{1+(1-T/C)^D}} \quad [\text{kg/L}], \; T \; [\text{K}]"></div>
+        <p class="math-label">LEL / UEL</p>
+        <div class="katex-block" data-latex="P_{\mathrm{fuel}} = P_{\mathrm{atm}} \cdot \frac{\mathrm{LEL}+\mathrm{UEL}}{200} \quad [\mathrm{Pa}]"></div>
+        <p class="math-label">Combustion energy</p>
+        <div class="katex-block" data-latex="\Delta H_{\mathrm{comb}} = \sum \Delta H_{\mathrm{products}} - \sum \Delta H_{\mathrm{reactants}} \quad [\mathrm{kJ}]"></div>
+        <p class="math-label">Chamber pressure</p>
+        <div class="katex-block" data-latex="P_{\mathrm{chamber}} = \frac{E_{\mathrm{comb}}}{V_{\mathrm{chamber}}} \quad [\mathrm{MPa}]"></div>
+        <p class="math-label">Net force</p>
+        <div class="katex-block" data-latex="F = A \cdot \Delta P - F_{\mathrm{frict}} \quad [\mathrm{N}]"></div>
+        <p class="math-label">Acceleration / Velocity</p>
+        <div class="katex-block" data-latex="a = \frac{F_{\mathrm{net}}}{m_{\mathrm{total}}} \; [\mathrm{m/s^2}], \quad v^2 = 2aL_{\mathrm{barrel}} \; [\mathrm{m/s}]"></div>
+        <p class="math-label">Kinetic energy and efficiency</p>
+        <div class="katex-block" data-latex="E_k = \frac{1}{2}mv^2 \; [\mathrm{J}], \quad \eta = \frac{E_k}{E_{\mathrm{comb}}} \times 100\%"></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>© 2026 Ömer Karaoğlu. All rights reserved.</p>
+    </footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script src="calculator.js"></script>
+  <script src="app.js"></script>
+  <script>
+    document.querySelectorAll('.katex-block').forEach(function(el) {
+      var latex = el.getAttribute('data-latex');
+      if (latex) {
+        try {
+          katex.render(latex, el, { displayMode: true, throwOnError: false });
+        } catch (e) {}
+      }
+    });
+  </script>
+</body>
+</html>
