@@ -6,7 +6,7 @@ A standalone web application for calculating thermodynamics and dynamics of flam
 
 ## Usage
 
-Open `index.html` in a modern web browser (Chrome, Firefox, Edge, Safari). No build step or dependencies needed. Uses KaTeX for equation rendering and external fonts via CDN.
+Open `index.html` in a modern web browser (Chrome, Firefox, Edge, Safari). No build step or dependencies needed.
 
 ---
 
@@ -64,39 +64,6 @@ Open `index.html` in a modern web browser (Chrome, Firefox, Edge, Safari). No bu
 - **Vary:** Check “Vary” for inputs to sweep; others use constant values from the main form
 - **Ranges:** Set min–max for each varying input
 - **Output:** All six outputs normalized to [0, 1] and plotted together
-
----
-
-## Models and Equations
-
-| Model | Purpose |
-|-------|---------|
-| **Barometric** | Atmospheric pressure vs altitude: \( p = p_0 \exp(-gM(h-h_0)/(RT)) \) |
-| **Van der Waals** | Real gas behavior; solved numerically (Newton–Raphson) for mole count |
-| **DIPPR 105** | Saturated liquid density vs temperature |
-| **LEL/UEL** | Fuel partial pressure = \( P_{\text{atm}} \times (\text{LEL} + \text{UEL}) / 200 \) |
-| **Combustion energy** | \( \Delta H_{\text{comb}} \) from enthalpy of formation |
-| **Chamber pressure** | \( P_{\text{chamber}} = E_{\text{comb}} / V_{\text{chamber}} \) |
-| **Net force** | \( F = A \cdot \Delta P - F_{\text{frict}} \) (includes friction) |
-| **Acceleration / velocity** | \( a = F_{\text{net}} / m_{\text{total}} \); \( v^2 = 2aL \) |
-| **Kinetic energy / efficiency** | \( E_k = \tfrac{1}{2}mv^2 \); \( \eta = E_k / E_{\text{comb}} \times 100\% \) |
-
-**Friction:** Coefficient of friction (COF) = 0.5192971331; friction force = \( mg\mu \).
-
-**Force model:** Uses average of initial and muzzle pressure for net acceleration.
-
----
-
-## File Structure
-
-```
-├── index.html    # Main page
-├── styles.css    # Styling
-├── app.js        # UI, graphs, event handling
-├── calculator.js # Calculation logic (Van der Waals, DIPPR, motion)
-├── assets/       # rifle.png, projectile.png
-└── README.md     # This file
-```
 
 ---
 
