@@ -80,21 +80,15 @@ Open `index.html` in a modern web browser (Chrome, Firefox, Edge, Safari). No bu
 
 ### Thermodynamics & gun outputs
 
-- [Chemical Properties of Ethanol](https://pubchem.ncbi.nlm.nih.gov/compound/Ethanol#section=Chemical-and-Physical-Properties) – PubChem
-- [Solving Equations with SymPy](https://problemsolvingwithpython.com/10-Symbolic-Math/10.06-Solving-Equations/) – Problem Solving with Python
-- [LEL & UEL's of Various Fuels](https://www.wermac.org/safety/safety_what_is_lel_and_uel.html) – Wermac
-- [Saturated Liquid Density (DIPPR 105)](http://ddbonline.ddbst.de/DIPPR105DensityCalculation/DIPPR105CalculationCGI.exe?component=Ethanol) – DDBST
-- [Van der Waals Equation](https://en.wikipedia.org/wiki/Van_der_Waals_equation) – Wikipedia
-- [Van der Waals Constants](https://en.wikipedia.org/wiki/Van_der_Waals_constants_(data_page)) – Wikipedia
+- [Chemical Properties of Ethanol](https://pubchem.ncbi.nlm.nih.gov/compound/Ethanol#section=Chemical-and-Physical-Properties)
+- [Solving Equations with SymPy](https://problemsolvingwithpython.com/10-Symbolic-Math/10.06-Solving-Equations/)
+- [LEL & UEL's of Various Fuels](https://www.wermac.org/safety/safety_what_is_lel_and_uel.html)
+- [Saturated Liquid Density (DIPPR 105)](http://ddbonline.ddbst.de/DIPPR105DensityCalculation/DIPPR105CalculationCGI.exe?component=Ethanol)
+- [Van der Waals Equation](https://en.wikipedia.org/wiki/Van_der_Waals_equation)
+- [Van der Waals Constants](https://en.wikipedia.org/wiki/Van_der_Waals_constants_(data_page))
 
 ### Ballistics & trajectory
 
-- **Trajectory model:** 2D point-mass with gravity and quadratic drag; drag force \(F_d = \tfrac{1}{2} \rho C_d A v^2\); Euler integration with fixed time step. \(\rho\) is evaluated at each step (see Air density).  
-  [Drag equation](https://en.wikipedia.org/wiki/Drag_equation) – Wikipedia  
-  [External ballistics](https://en.wikipedia.org/wiki/External_ballistics) – Wikipedia
-- **Atmosphere along path:** At height \(y\) above ground, temperature uses the standard lapse rate \(T(y) = T_0 - \Gamma y\) (\(\Gamma = 0.0065\,\mathrm{K/m}\)); pressure follows \(P(y) = P_0\,(T(y)/T_0)^{gM/(R\Gamma)}\) with \(P_0\) from the barometric formula at ground altitude.  
-  [Barometric formula](https://en.wikipedia.org/wiki/Barometric_formula) – Wikipedia
-- **Air density (real gas):** At each trajectory point, \(\rho\) is computed from local \(P\) and \(T\) using the Van der Waals equation for air (solve \(P = RT\nu/(1-b\nu) - a\nu^2\) for \(\nu = n/V\), then \(\rho = \nu M_{\mathrm{air}}\)). This gives a density (and effective gas behaviour) at every point instead of a constant ideal-gas \(\rho\).  
-  [Van der Waals equation](https://en.wikipedia.org/wiki/Van_der_Waals_equation) – Wikipedia
-- **Mach number:** Speed of sound taken as 343 m/s (approximate, for \(C_d\) lookup).
-- **Drag coefficients:** \(C_d\) vs Mach from tabulated profiles: **Pellet (GA):** GA-style domed pellet (high drag, strong transonic rise). **Slug (SLG0):** Reference airgun slug; subsonic/transonic from wind-tunnel–style data, supersonic extended.
+- 2D point-mass trajectory with quadratic drag \(F_d = \tfrac{1}{2} \rho C_d A v^2\); \(\rho\) from real gas (Van der Waals) at each step using local \(P\), \(T\) from lapse-rate atmosphere.
+- Drag: Pellet (GA) and Slug (SLG0) \(C_d\) vs Mach tables.
+- [Drag equation](https://en.wikipedia.org/wiki/Drag_equation) · [Barometric formula](https://en.wikipedia.org/wiki/Barometric_formula) · [Van der Waals equation](https://en.wikipedia.org/wiki/Van_der_Waals_equation)
