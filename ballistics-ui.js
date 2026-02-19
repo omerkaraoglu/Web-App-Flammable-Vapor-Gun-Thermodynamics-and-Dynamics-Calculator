@@ -148,6 +148,21 @@
     return r ? r.muzzleVelocity : 0;
   }
 
+  /** Muzzle velocity (m/s) for a given fuel with current gun parameters. */
+  function getMuzzleVelocityForFuel(fuel) {
+    const inps = getBallisticsInputs();
+    const r = window.calculate && window.calculate(
+      fuel,
+      String(inps.temperature),
+      String(inps.altitude),
+      inps.chamber_volume,
+      inps.barrel_diameter,
+      inps.barrel_length,
+      inps.projectile_mass
+    );
+    return r ? r.muzzleVelocity : 0;
+  }
+
   function runTrajectory() {
     if (!canvas || !window.Ballistics) return;
     const inps = getBallisticsInputs();
@@ -196,10 +211,14 @@
     const range = path.length > 0 ? path[path.length - 1].x : 0;
     const maxY = path.length > 0 ? Math.max.apply(null, path.map(function (p) { return p.y; })) : launchHeight;
 
+    var v0Ethanol = getMuzzleVelocityForFuel('ethanol');
+    var E0Ethanol = v0Ethanol > 0 ? 0.5 * massKg * v0Ethanol * v0Ethanol : path[0].E;
+    var ERef = 0.5 * E0Ethanol;
+
     if (rangeEl) rangeEl.textContent = 'Range: ' + round2(range) + ' m';
 
     updateMarkerTable(markers);
-    drawTrajectory(canvas, path, markers, range, maxY, launchHeight, angle);
+    drawTrajectory(canvas, path, markers, range, maxY, launchHeight, angle, ERef);
   }
 
   function updateMarkerTable(markers) {
@@ -225,7 +244,7 @@
     }
   }
 
-  function drawTrajectory(canvasEl, path, markers, rangeM, maxYm, launchHeight, angleDeg) {
+  function drawTrajectory(canvasEl, path, markers, rangeM, maxYm, launchHeight, angleDeg, ERef) {
     sizeCanvasToWrap();
     const w = canvasEl.width;
     const h = canvasEl.height;
@@ -283,13 +302,21 @@
     drawScaleObjects(ctx, toX, toY, xMaxDisplay, scale, plotW, plotH, padObj);
 
     const E0 = path[0].E;
+    var ref = (ERef != null && ERef > 0) ? ERef : 0.5 * E0;
 
     for (let i = 0; i < path.length - 1; i++) {
       const p1 = path[i];
       const p2 = path[i + 1];
-      const t = 1 - p1.E / E0;
-      const r = Math.round(255 * (1 - t));
-      const b = Math.round(255 * t);
+      const E = p1.E;
+      var t;
+      if (E >= ref) {
+        t = (E0 > ref) ? 0.5 + 0.5 * (E - ref) / (E0 - ref) : 0.5;
+      } else {
+        t = (ref > 0) ? 0.5 * (E / ref) : 0;
+      }
+      t = Math.max(0, Math.min(1, t));
+      const r = Math.round(255 * t);
+      const b = Math.round(255 * (1 - t));
       ctx.strokeStyle = 'rgb(' + r + ',0,' + b + ')';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
