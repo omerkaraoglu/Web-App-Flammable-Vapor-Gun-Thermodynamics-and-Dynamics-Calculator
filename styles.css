@@ -92,6 +92,27 @@ body {
   color: #e6e9f0 !important;
 }
 
+.drag-profile-fig {
+  margin: 0.75rem 0 0 0;
+  padding: 0.5rem 0;
+}
+
+.drag-profile-canvas {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  aspect-ratio: 320 / 180;
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.drag-profile-fig figcaption {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+}
+
 .math-table tbody tr:hover td {
   background: rgba(30, 45, 70, 0.25);
 }
@@ -652,6 +673,214 @@ body {
 .norm-var-cb {
   accent-color: var(--accent);
   cursor: pointer;
+}
+
+/* ----- Ballistics & trajectory ----- */
+.ballistics-section {
+  margin-top: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.ballistics-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.ballistics-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ballistics-row label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.ballistics-slider {
+  width: 140px;
+  accent-color: var(--accent);
+}
+
+.ballistics-value {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  min-width: 2rem;
+}
+
+.ballistics-angle-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  outline: none;
+}
+
+.ballistics-angle-wrap:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+}
+
+.ballistics-angle-wrap label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.ballistics-angle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ballistics-fine-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ballistics-fine-row label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ballistics-slider-fine {
+  width: 100px;
+}
+
+.ballistics-fine-value {
+  min-width: 2.5rem;
+}
+
+.ballistics-input-num {
+  width: 4rem;
+}
+
+.trajectory-with-table {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.trajectory-wrap {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  aspect-ratio: 1;
+}
+
+.trajectory-marker-table-wrap {
+  flex: 0 0 auto;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+}
+
+.trajectory-marker-table {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  border-collapse: collapse;
+  color: var(--text);
+}
+
+.trajectory-marker-table th,
+.trajectory-marker-table td {
+  padding: 0.25rem 0.5rem;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+
+.trajectory-marker-table th {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.trajectory-marker-table th:first-child,
+.trajectory-marker-table td:first-child {
+  text-align: left;
+}
+
+.trajectory-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.trajectory-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.trajectory-toolbar label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.trajectory-zoom-slider-wrap {
+  outline: none;
+}
+
+.trajectory-zoom-slider-wrap:focus {
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+}
+
+.trajectory-zoom-slider {
+  width: 120px;
+}
+
+.trajectory-zoom-reset {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+
+.trajectory-zoom-reset:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.trajectory-zoom-reset:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(0, 212, 170, 0.2);
+}
+
+.trajectory-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.trajectory-range {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin: 0;
 }
 
 .footer {

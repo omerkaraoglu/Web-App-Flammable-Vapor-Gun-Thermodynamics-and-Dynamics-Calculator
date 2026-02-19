@@ -238,6 +238,67 @@
       </div>
     </section>
 
+    <section class="ballistics-section" aria-label="Ballistics and trajectory">
+      <p class="section-label">Ballistics &amp; trajectory</p>
+      <p class="graph-hint graph-hint-normalized">Uses muzzle velocity from the outputs above. Flat ground; range = impact distance.</p>
+      <div class="trajectory-with-table">
+        <div class="trajectory-wrap">
+          <canvas id="trajectoryCanvas" class="trajectory-canvas"></canvas>
+          <div class="trajectory-footer">
+            <div class="trajectory-range" id="trajectoryRange"></div>
+            <div class="trajectory-toolbar">
+              <label for="traj_zoom">Zoom</label>
+              <div class="trajectory-zoom-slider-wrap" id="traj_zoom_wrap" tabindex="0" title="Scroll to zoom in">
+                <input type="range" id="traj_zoom" min="0" max="1" value="0" step="0.01" class="ballistics-slider trajectory-zoom-slider" aria-label="Zoom 100%–1000% (log scale)" />
+              </div>
+              <span class="ballistics-value trajectory-zoom-value" id="traj_zoom_value">100%</span>
+              <button type="button" id="traj_zoom_reset" class="trajectory-zoom-reset" title="Reset zoom">Reset zoom</button>
+            </div>
+          </div>
+        </div>
+        <div class="trajectory-marker-table-wrap">
+          <table id="trajectoryMarkerTable" class="trajectory-marker-table" aria-label="Trajectory markers">
+            <thead>
+              <tr>
+                <th>%</th>
+                <th>J</th>
+                <th>m/s</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ballistics-controls">
+        <div class="ballistics-angle-wrap" id="traj_angle_wrap" tabindex="0" title="Scroll with mouse wheel to change angle">
+          <label>Launch angle (°)</label>
+          <div class="ballistics-angle-row">
+            <input type="range" id="traj_angle" min="-90" max="90" value="15" step="1" class="ballistics-slider" aria-label="Angle −90° to 90°" />
+            <span class="ballistics-value" id="traj_angle_value">15.0</span>
+          </div>
+          <div class="ballistics-fine-row" id="traj_angle_fine_wrap" tabindex="0" title="Scroll to adjust fine angle (±5°, 0.1°)">
+            <label for="traj_angle_fine">Fine ±5° (0.1°)</label>
+            <input type="range" id="traj_angle_fine" min="-5" max="5" value="0" step="0.1" class="ballistics-slider ballistics-slider-fine" aria-label="Fine adjust ±5°" />
+            <span class="ballistics-value ballistics-fine-value" id="traj_angle_fine_value">0</span>
+          </div>
+        </div>
+        <div class="ballistics-height-wrap ballistics-angle-wrap" id="traj_height_wrap">
+          <label for="traj_launch_height">Launch height (m)</label>
+          <div class="ballistics-angle-row">
+            <input type="range" id="traj_launch_height" min="0.1" max="10" value="1.5" step="0.1" class="ballistics-slider" aria-label="Launch height 0.1–10 m" />
+            <span class="ballistics-value" id="traj_launch_height_value">1.5</span>
+          </div>
+        </div>
+        <div class="ballistics-row">
+          <label for="traj_ammo">Ammunition type</label>
+          <select id="traj_ammo" class="graph-select">
+            <option value="pellet">Pellet (GA)</option>
+            <option value="slug">Slug (SLG0)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
     <section class="math-panel" aria-label="Equations">
       <h2 class="math-panel-title">Models and equations</h2>
       <div class="math-display-block">
@@ -259,6 +320,28 @@
         <div class="katex-block" data-latex="a = \frac{F_{\mathrm{net}}}{m_{\mathrm{total}}} \; [\mathrm{m/s^2}], \quad v^2 = 2aL_{\mathrm{barrel}} \; [\mathrm{m/s}]"></div>
         <p class="math-label">Kinetic energy and efficiency</p>
         <div class="katex-block" data-latex="E_k = \frac{1}{2}mv^2 \; [\mathrm{J}], \quad \eta = \frac{E_k}{E_{\mathrm{comb}}} \times 100\%"></div>
+
+        <p class="math-label">Drag force (trajectory)</p>
+        <div class="katex-block" data-latex="F_d = \frac{1}{2} \rho C_d A v^2 \quad [\mathrm{N}]"></div>
+        <p class="math-label">Mach number</p>
+        <div class="katex-block" data-latex="\mathrm{Ma} = \frac{v}{c_{\mathrm{sound}}} \quad (c_{\mathrm{sound}} \approx 343 \; \mathrm{m/s})"></div>
+        <p class="math-label">Atmosphere at height (lapse rate)</p>
+        <div class="katex-block" data-latex="T(y) = T_0 - \Gamma y, \quad P(y) = P_0 \left(\frac{T(y)}{T_0}\right)^{gM/(R\Gamma)} \quad (\Gamma = 0.0065 \; \mathrm{K/m})"></div>
+        <p class="math-label">Air density (real gas, trajectory)</p>
+        <div class="katex-block" data-latex="P = \frac{RT\nu}{1-b\nu} - a\nu^2 \;\Rightarrow\; \rho = \nu M_{\mathrm{air}} \quad [\mathrm{kg/m^3}] \quad \text{at each point}"></div>
+        <p class="math-label">Trajectory (point-mass, flat ground)</p>
+        <div class="katex-block" data-latex="a_x = -\frac{F_d}{m}\frac{v_x}{v}, \quad a_y = -g - \frac{F_d}{m}\frac{v_y}{v} \quad [\mathrm{m/s^2}], \quad \rho = \rho(y)"></div>
+
+        <p class="math-label">Pellet (GA) drag profile</p>
+        <figure class="drag-profile-fig" aria-label="Pellet GA C_d vs Mach">
+          <canvas id="dragProfilePellet" class="drag-profile-canvas" width="320" height="180"></canvas>
+          <figcaption>C<sub>d</sub> vs Mach</figcaption>
+        </figure>
+        <p class="math-label">Slug (SLG0) drag profile</p>
+        <figure class="drag-profile-fig" aria-label="Slug SLG0 C_d vs Mach">
+          <canvas id="dragProfileSlug" class="drag-profile-canvas" width="320" height="180"></canvas>
+          <figcaption>C<sub>d</sub> vs Mach</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -268,8 +351,85 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
   <script src="calculator.js"></script>
+  <script src="ballistics.js"></script>
   <script src="app.js"></script>
+  <script src="ballistics-ui.js"></script>
   <script>
+    (function drawDragProfiles() {
+      if (!window.Ballistics || !window.Ballistics.getDragProfile) return;
+      function drawProfile(canvasId, ammoType) {
+        var canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var profile = window.Ballistics.getDragProfile(ammoType);
+        var mach = profile.mach, cd = profile.cd;
+        if (!mach.length) return;
+        var w = canvas.width, h = canvas.height;
+        var padL = 44, padR = 16, padT = 16, padB = 32;
+        var plotW = w - padL - padR, plotH = h - padT - padB;
+        var maxM = Math.max.apply(null, mach);
+        var maxC = Math.max.apply(null, cd);
+        if (ammoType === 'slug') maxM = Math.min(maxM, 3);
+        maxM = Math.max(maxM, 0.1);
+        maxC = Math.max(maxC, 0.1);
+        ctx.fillStyle = '#0d0f14';
+        ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(90, 100, 130, 0.9)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(padL, padT);
+        ctx.lineTo(padL, padT + plotH);
+        ctx.lineTo(padL + plotW, padT + plotH);
+        ctx.stroke();
+        var tickLen = 5;
+        var machStep = maxM <= 1 ? 0.2 : maxM <= 2 ? 0.5 : 1;
+        for (var m = 0; m <= maxM; m += machStep) {
+          var px = padL + (m / maxM) * plotW;
+          ctx.beginPath();
+          ctx.moveTo(px, padT + plotH);
+          ctx.lineTo(px, padT + plotH + tickLen);
+          ctx.stroke();
+        }
+        var cdStep = maxC <= 0.3 ? 0.05 : maxC <= 0.7 ? 0.1 : 0.2;
+        for (var c = 0; c <= maxC; c += cdStep) {
+          var py = padT + plotH - (c / maxC) * plotH;
+          ctx.beginPath();
+          ctx.moveTo(padL - tickLen, py);
+          ctx.lineTo(padL, py);
+          ctx.stroke();
+        }
+        ctx.fillStyle = '#e0e8f0';
+        ctx.font = '10px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('Mach', padL + plotW / 2, h - 6);
+        ctx.save();
+        ctx.translate(12, padT + plotH / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textAlign = 'center';
+        ctx.fillText('C_d', 0, 0);
+        ctx.restore();
+        ctx.textAlign = 'right';
+        ctx.fillText(maxC.toFixed(2), padL - 4, padT + 10);
+        ctx.fillText('0', padL - 4, padT + plotH);
+        ctx.textAlign = 'left';
+        ctx.fillText(maxM.toFixed(1), padL + plotW - 4, padT + plotH + 14);
+        ctx.fillText('0', padL, padT + plotH + 14);
+        var toX = function(m) { return padL + (m / maxM) * plotW; };
+        var toY = function(c) { return padT + plotH - (c / maxC) * plotH; };
+        ctx.strokeStyle = 'rgba(0, 212, 170, 0.9)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        var first = true;
+        for (var i = 0; i < mach.length; i++) {
+          if (mach[i] > maxM) break;
+          if (first) { ctx.moveTo(toX(mach[i]), toY(cd[i])); first = false; }
+          else ctx.lineTo(toX(mach[i]), toY(cd[i]));
+        }
+        ctx.stroke();
+      }
+      drawProfile('dragProfilePellet', 'pellet');
+      drawProfile('dragProfileSlug', 'slug');
+    })();
     document.querySelectorAll('.katex-block').forEach(function(el) {
       var latex = el.getAttribute('data-latex');
       if (latex) {
