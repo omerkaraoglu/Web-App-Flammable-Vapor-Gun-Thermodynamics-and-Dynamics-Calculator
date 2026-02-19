@@ -89,6 +89,11 @@ Open `index.html` in a modern web browser (Chrome, Firefox, Edge, Safari). No bu
 
 ### Ballistics & trajectory
 
-- 2D point-mass trajectory with quadratic drag \(F_d = \tfrac{1}{2} \rho C_d A v^2\); \(\rho\) from real gas (Van der Waals) at each step using local \(P\), \(T\) from lapse-rate atmosphere.
-- Drag: Pellet (GA) and Slug (SLG0) \(C_d\) vs Mach tables.
-- [Drag equation](https://en.wikipedia.org/wiki/Drag_equation) · [Barometric formula](https://en.wikipedia.org/wiki/Barometric_formula) · [Van der Waals equation](https://en.wikipedia.org/wiki/Van_der_Waals_equation)
+Trajectory is computed by integrating a 2D point-mass under gravity and quadratic drag. At each step we take the current height and, from a lapse-rate atmosphere model, get local pressure and temperature; air density is then obtained from the Van der Waals equation (real gas) so it varies along the path. Drag uses tabulated \(C_d\) vs Mach for two profiles: Pellet (GA) and Slug (SLG0). Equations are listed in the *Models and equations* section on the page.
+
+**Sources (for the equations on the page):**
+
+- [Drag equation](https://en.wikipedia.org/wiki/Drag_equation)
+- [External ballistics](https://en.wikipedia.org/wiki/External_ballistics)
+- [Barometric formula](https://en.wikipedia.org/wiki/Barometric_formula)
+- [Van der Waals equation](https://en.wikipedia.org/wiki/Van_der_Waals_equation)
